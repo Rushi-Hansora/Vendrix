@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vendrix-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vendrix
+      POSTGRES_USER: vendrix
+      POSTGRES_PASSWORD: vendrix
+    ports:
+      - "5433:5432"
+    volumes:
+      - vendrix-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vendrix -d vendrix"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./Vendrix-api
+    container_name: vendrix-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      DATABASE_URL: postgresql://vendrix:vendrix@postgres:5432/vendrix?schema=public
+      JWT_SECRET: local-dev-change-me
+      JWT_EXPIRES_IN: 7d
+      CLIENT_URL: http://localhost:5173,http://localhost:5174
+      AWS_REGION: ap-south-1
+    ports:
+      - "5001:5000"
+    command: sh -c "npx prisma migrate deploy && node server.js"
+
+volumes:
+  vendrix-postgres-data:
