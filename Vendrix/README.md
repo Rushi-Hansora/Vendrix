@@ -1,4 +1,4 @@
-# VendorBridge 🏗️
+# Vendrix 🏗️
 
 > **Procurement & Vendor Management ERP** — A cloud-native full-stack application that digitizes and streamlines end-to-end procurement workflows for organizations.
 
